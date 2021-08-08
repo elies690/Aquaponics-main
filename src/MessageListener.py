@@ -35,6 +35,6 @@ class MessageReceivedListener():
         elif tag == 'sensors':
             temp = float(data[0])
             tds = float(data[1])
-            self.system_controller.manage_sensor_reading(temp,tds)
+            self.system_controller.sensors_manager(temp,tds)
             
             
