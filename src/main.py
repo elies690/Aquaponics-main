@@ -7,10 +7,10 @@ from socketIO_client import sio_AsyncClient
 import asyncio
 from MessageListener import MessageReceivedListener
 
-tcp_host = '192.168.0.108'
+tcp_host = '192.168.0.118'
 tcp_port = 8080
 
-sio_host = '192.168.1.65'
+sio_host = '192.168.0.118'
 sio_port = 9999
 
 # Initializing parameters
@@ -30,12 +30,14 @@ alarm = Alarm(alarmLed,alarmBuzzer,alarmBtn)
 system_controller = SystemController(alarm,T_range,TDS_range)
 
 #Create tasks
-task_sensorsControl = Task('SensorsControl',system_controller.get_sensors_readings,10,TimeOrder.SECOND,'sensors')
+task_getSensors = Task('GetSensors',system_controller.get_sensors_readings,10,TimeOrder.SECOND,'sensors')
 task_feederRun = Task('FeederRun',system_controller.run_feeder,15,TimeOrder.SECOND,'feeder')
+task_levelCheck = Task('LevelCheck',system_controller.level_check,5,TimeOrder.MINUTE,'level')
 
 #Schedule tasks
-task_manager.schedule_task(task_sensorsControl)
+task_manager.schedule_task(task_getSensors)
 task_manager.schedule_task(task_feederRun)
+task_manager.schedule_task(task_levelCheck)
 
 #Create tcpServer and messageListener
 MsgListener = MessageReceivedListener(system_controller)
@@ -44,6 +46,7 @@ sio_client = sio_AsyncClient(sio_host,sio_port)
 
 system_controller.sendMessage = tcpServer.send_message
 system_controller.updateWebpage = sio_client.update_webpage
+sio_client.controller = system_controller
 
 async def main():
         while True:

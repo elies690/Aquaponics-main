@@ -12,7 +12,10 @@ class sio_AsyncClient():
         if not self.CONNECTED:
             url = 'http://' + self._host +':'+ str(self._port)
             await self.sio_client.connect(url)
+            @self.sio_client.on('web')
+            def print(message):
+                print(message)
             self.CONNECTED = True
 
-    async def emit_event(self,event,message):
+    async def update_webpage(self,event,message):
         await self.sio_client.emit(event,message)
